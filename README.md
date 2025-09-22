@@ -16,13 +16,54 @@ This service is part of the Open Checkout Network (OCN) - a decentralized paymen
 - [Okra](https://github.com/ahsanazmi1/okra) - Credit services
 - [Opal](https://github.com/ahsanazmi1/opal) - Wallet and virtual cards
 
-## Quick Start
+## Quickstart (≤ 60s)
+
+Get up and running with Onyx Trust Registry in under a minute:
 
 ```bash
 # Clone the repository
 git clone https://github.com/ahsanazmi1/onyx.git
 cd onyx
 
+# Setup everything (venv, deps, pre-commit hooks)
+make setup
+
+# Run tests to verify everything works
+make test
+
+# Start the service
+make run
+```
+
+**That's it!** 🎉 
+
+The service will be running at `http://localhost:8000`. Test the trust registry:
+
+```bash
+# List all trusted providers
+curl http://localhost:8000/trust/providers
+
+# Check if a provider is allowed
+curl http://localhost:8000/trust/allowed/trusted_bank_001
+
+# Health check
+curl http://localhost:8000/health
+```
+
+### Additional Makefile Targets
+
+```bash
+make lint        # Run code quality checks
+make fmt         # Format code with black/ruff
+make clean       # Remove virtual environment and cache
+make help        # Show all available targets
+```
+
+## Manual Setup (Alternative)
+
+If you prefer manual setup over the Makefile:
+
+```bash
 # Create virtual environment
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
@@ -30,15 +71,15 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 # Install dependencies
 pip install -e ".[dev]"
 
+# Install pre-commit hooks
+pip install pre-commit
+pre-commit install
+
 # Run tests
 pytest -q
 
 # Start the service
 uvicorn onyx.api:app --reload
-
-# Test the trust registry
-curl http://localhost:8000/trust/providers
-curl http://localhost:8000/trust/allowed/trusted_bank_001
 ```
 
 ## API Endpoints

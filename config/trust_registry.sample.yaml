@@ -12,25 +12,25 @@ providers:
     type: "bank"
     status: "active"
     verified: true
-    
+
   - id: "verified_credit_union_002"
     name: "Community Credit Union"
     type: "credit_union"
     status: "active"
     verified: true
-    
+
   - id: "authorized_fintech_003"
     name: "TechPay Solutions"
     type: "fintech"
     status: "active"
     verified: true
-    
+
   - id: "certified_payment_processor_004"
     name: "SecurePay Inc"
     type: "payment_processor"
     status: "active"
     verified: true
-    
+
   - id: "licensed_lender_005"
     name: "QuickLoan Services"
     type: "lender"
@@ -44,14 +44,14 @@ metadata:
   description: "Trust Registry v0 allowlist for OCN credential providers"
   last_updated: "2024-09-22"
   maintainer: "OCN Team"
-  
+
 # Registry settings
 settings:
   # Whether to allow providers not in the allowlist (default: false)
   strict_mode: true
-  
+
   # Auto-reload configuration on changes (default: false)
   auto_reload: false
-  
+
   # Cache TTL in seconds (default: 300)
   cache_ttl: 300
