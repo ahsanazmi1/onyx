@@ -35,11 +35,41 @@ pytest -q
 
 # Start the service
 uvicorn onyx.api:app --reload
+
+# Test the trust registry
+curl http://localhost:8000/trust/providers
+curl http://localhost:8000/trust/allowed/trusted_bank_001
 ```
 
 ## API Endpoints
 
+### Core Endpoints
 - `GET /health` - Health check endpoint
+
+### Trust Registry v0
+- `GET /trust/providers` - List all trusted credential providers
+- `GET /trust/allowed/{provider_id}` - Check if a provider is allowed
+
+### MCP (Model Context Protocol)
+- `POST /mcp/invoke` - MCP protocol endpoint for trust operations
+
+## Trust Registry Configuration
+
+The Trust Registry can be configured using a YAML file:
+
+```bash
+# Copy sample configuration
+cp config/trust_registry.sample.yaml config/trust_registry.yaml
+
+# Customize the provider allowlist
+# Edit config/trust_registry.yaml to add your trusted providers
+```
+
+**Built-in Providers** (fallback when no config file):
+- `trusted_bank_001`, `verified_credit_union_002`, `authorized_fintech_003`
+- `certified_payment_processor_004`, `licensed_lender_005`
+
+See [docs/trust_registry.md](docs/trust_registry.md) for detailed configuration guide.
 
 ## Development
 

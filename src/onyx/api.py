@@ -4,9 +4,10 @@ FastAPI application for Onyx Trust Registry service.
 
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from onyx.mcp.server import mcp_router
+from onyx.trust_registry import get_trust_registry
 
 # Create FastAPI application
 app = FastAPI(
@@ -37,6 +38,46 @@ async def health_check() -> dict[str, Any]:
         dict: Health status information
     """
     return {"ok": True, "repo": "onyx"}
+
+
+@app.get("/trust/providers")
+async def list_trusted_providers() -> dict[str, Any]:
+    """
+    List all trusted credential providers.
+
+    Returns:
+        dict: List of trusted provider IDs
+    """
+    registry = get_trust_registry()
+    providers = registry.list_providers()
+    stats = registry.get_stats()
+    
+    return {
+        "providers": providers,
+        "count": len(providers),
+        "stats": stats
+    }
+
+
+@app.get("/trust/allowed/{provider_id}")
+async def check_provider_allowed(provider_id: str) -> dict[str, Any]:
+    """
+    Check if a specific provider is allowed in the trust registry.
+
+    Args:
+        provider_id: Unique identifier for the provider
+
+    Returns:
+        dict: Provider status information
+    """
+    registry = get_trust_registry()
+    allowed = registry.is_allowed(provider_id)
+    
+    return {
+        "provider_id": provider_id,
+        "allowed": allowed,
+        "reason": "Provider is in trust registry" if allowed else "Provider not found in trust registry"
+    }
 
 
 def main() -> None:

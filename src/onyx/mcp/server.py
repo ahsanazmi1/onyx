@@ -75,9 +75,7 @@ async def invoke_mcp(request: MCPRequest) -> MCPResponse:
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Internal server error: {str(e)}"
-        ) from e
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}") from e
 
 
 def _is_provider_allowed(provider_id: str) -> bool:
