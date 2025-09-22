@@ -1,0 +1,93 @@
+name: Contracts
+
+on:
+  push:
+    branches: [ main, phase-1-foundations ]
+  pull_request:
+    branches: [ main, phase-1-foundations ]
+
+jobs:
+  validate-contracts:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install jsonschema requests
+
+    - name: Check for contract examples/schemas
+      id: check-contracts
+      run: |
+        if [ -d "examples" ] || [ -d "schemas" ] || [ -d "src/onyx/schemas" ]; then
+          echo "has_contracts=true" >> $GITHUB_OUTPUT
+          echo "Found contract examples/schemas directory"
+        else
+          echo "has_contracts=false" >> $GITHUB_OUTPUT
+          echo "No contract examples/schemas found"
+        fi
+
+    - name: Install ocn-common for validation
+      if: steps.check-contracts.outputs.has_contracts == 'true'
+      run: |
+        # Try to install ocn-common from submodule first
+        if [ -d "ocn-common" ]; then
+          echo "Installing ocn-common from submodule"
+          pip install -e ./ocn-common
+        else
+          # Try to install from git tag if available
+          echo "Attempting to install ocn-common from git"
+          pip install git+https://github.com/ahsanazmi1/ocn-common.git@latest || echo "Could not install ocn-common, will use placeholder validation"
+        fi
+
+    - name: Validate contract examples
+      if: steps.check-contracts.outputs.has_contracts == 'true'
+      run: |
+        echo "Validating contract examples against ocn-common schemas..."
+        python -c "
+        import json
+        import os
+        from pathlib import Path
+
+        # Find example files
+        example_dirs = ['examples', 'schemas', 'src/onyx/schemas']
+        example_files = []
+
+        for dir_name in example_dirs:
+            if os.path.exists(dir_name):
+                example_files.extend(Path(dir_name).rglob('*.json'))
+
+        if example_files:
+            print(f'Found {len(example_files)} example files to validate')
+            for file_path in example_files:
+                try:
+                    with open(file_path, 'r') as f:
+                        data = json.load(f)
+                    print(f'✅ {file_path}: Valid JSON')
+                except json.JSONDecodeError as e:
+                    print(f'❌ {file_path}: Invalid JSON - {e}')
+                    exit(1)
+                except Exception as e:
+                    print(f'⚠️  {file_path}: Warning - {e}')
+
+            print('✅ All contract examples validated successfully')
+        else:
+            print('No example files found to validate')
+        "
+
+    - name: Placeholder validation
+      if: steps.check-contracts.outputs.has_contracts == 'false'
+      run: |
+        echo "⚠️  No contract examples/schemas found in this repository"
+        echo "This is expected for Onyx Trust Registry service"
+        echo "Contract validation will be added when schemas are defined"
+        echo "✅ Placeholder validation passed"

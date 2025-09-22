@@ -1,6 +1,8 @@
 # Onyx Trust Registry
 
-[![CI](https://github.com/ahsanazmi1/onyx/workflows/CI/badge.svg)](https://github.com/ahsanazmi1/onyx/actions)
+[![CI](https://github.com/ahsanazmi1/onyx/workflows/CI/badge.svg)](https://github.com/ahsanazmi1/onyx/actions/workflows/ci.yml)
+[![Contracts](https://github.com/ahsanazmi1/onyx/workflows/Contracts/badge.svg)](https://github.com/ahsanazmi1/onyx/actions/workflows/contracts.yml)
+[![Security](https://github.com/ahsanazmi1/onyx/workflows/Security/badge.svg)](https://github.com/ahsanazmi1/onyx/actions/workflows/security.yml)
 
 Onyx is the Trust Registry and KYB (Know Your Business) service for the [Open Checkout Network (OCN)](https://github.com/ahsanazmi1/ocn-common). It provides centralized trust management, business verification, and compliance checking capabilities for the OCN ecosystem. Onyx maintains allowlists and denylists, performs business verification checks, and provides APIs for trust verification across all OCN services.
 
