@@ -1,0 +1,46 @@
+{
+  "name": "onyx-trust-registry",
+  "version": "0.1.0",
+  "description": "Onyx Trust Registry and KYB service MCP interface",
+  "capabilities": [
+    "getStatus",
+    "isAllowedProvider"
+  ],
+  "endpoints": {
+    "http": {
+      "path": "/mcp/invoke",
+      "method": "POST"
+    }
+  },
+  "verbs": {
+    "getStatus": {
+      "description": "Get service status and agent information",
+      "parameters": {},
+      "returns": {
+        "ok": "boolean",
+        "agent": "string"
+      }
+    },
+    "isAllowedProvider": {
+      "description": "Check if a provider is allowed in the trust registry",
+      "parameters": {
+        "provider_id": {
+          "type": "string",
+          "description": "Unique identifier for the provider",
+          "required": true
+        }
+      },
+      "returns": {
+        "allowed": "boolean",
+        "provider_id": "string",
+        "reason": "string"
+      }
+    }
+  },
+  "metadata": {
+    "service": "onyx",
+    "type": "trust-registry",
+    "maintainer": "OCN Team",
+    "contact": "team@ocn.ai"
+  }
+}

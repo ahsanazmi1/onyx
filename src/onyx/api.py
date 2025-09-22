@@ -6,6 +6,8 @@ from typing import Any
 
 from fastapi import FastAPI
 
+from onyx.mcp.server import mcp_router
+
 # Create FastAPI application
 app = FastAPI(
     title="Onyx Trust Registry",
@@ -22,12 +24,15 @@ app = FastAPI(
     },
 )
 
+# Include MCP router
+app.include_router(mcp_router)
+
 
 @app.get("/health")
 async def health_check() -> dict[str, Any]:
     """
     Health check endpoint.
-    
+
     Returns:
         dict: Health status information
     """
@@ -37,7 +42,7 @@ async def health_check() -> dict[str, Any]:
 def main() -> None:
     """Main entry point for running the application."""
     import uvicorn
-    
+
     uvicorn.run(
         "onyx.api:app",
         host="0.0.0.0",
