@@ -35,7 +35,7 @@ make test
 make run
 ```
 
-**That's it!** 🎉 
+**That's it!** 🎉
 
 The service will be running at `http://localhost:8000`. Test the trust registry:
 
