@@ -29,7 +29,7 @@ providers:
   # Simple string format
   - "provider_id_1"
   - "provider_id_2"
-  
+
   # Object format with metadata
   - id: "provider_id_3"
     name: "Provider Name"
