@@ -86,7 +86,7 @@ def main() -> None:
 
     uvicorn.run(
         "onyx.api:app",
-        host="0.0.0.0",
+        host="127.0.0.1",  # Use localhost for development security
         port=8000,
         reload=True,
         log_level="info",
