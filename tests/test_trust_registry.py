@@ -18,7 +18,7 @@ from onyx.trust_registry import (
 class TestTrustRegistry:
     """Test cases for TrustRegistry class."""
 
-    def test_init_with_builtin_fallback(self):
+    def test_init_with_builtin_fallback(self) -> None:
         """Test initialization with built-in fallback allowlist."""
         registry = TrustRegistry()
 
@@ -26,7 +26,7 @@ class TestTrustRegistry:
         assert len(registry.list_providers()) > 0
         assert "trusted_bank_001" in registry.list_providers()
 
-    def test_init_with_nonexistent_config(self):
+    def test_init_with_nonexistent_config(self) -> None:
         """Test initialization with non-existent config file."""
         registry = TrustRegistry("nonexistent_config.yaml")
 
@@ -34,7 +34,7 @@ class TestTrustRegistry:
         assert len(registry.list_providers()) > 0
         assert "trusted_bank_001" in registry.list_providers()
 
-    def test_init_with_valid_yaml(self):
+    def test_init_with_valid_yaml(self) -> None:
         """Test initialization with valid YAML config."""
         # Create temporary YAML file
         yaml_content = {
@@ -61,7 +61,7 @@ class TestTrustRegistry:
         finally:
             os.unlink(temp_path)
 
-    def test_init_with_invalid_yaml(self):
+    def test_init_with_invalid_yaml(self) -> None:
         """Test initialization with invalid YAML config."""
         # Create temporary invalid YAML file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
@@ -78,7 +78,7 @@ class TestTrustRegistry:
         finally:
             os.unlink(temp_path)
 
-    def test_is_allowed_true(self):
+    def test_is_allowed_true(self) -> None:
         """Test is_allowed returns True for allowed providers."""
         registry = TrustRegistry()
 
@@ -86,7 +86,7 @@ class TestTrustRegistry:
         assert registry.is_allowed("trusted_bank_001") is True
         assert registry.is_allowed("verified_credit_union_002") is True
 
-    def test_is_allowed_false(self):
+    def test_is_allowed_false(self) -> None:
         """Test is_allowed returns False for non-allowed providers."""
         registry = TrustRegistry()
 
@@ -95,7 +95,7 @@ class TestTrustRegistry:
         assert registry.is_allowed("malicious_provider") is False
         assert registry.is_allowed("") is False
 
-    def test_is_allowed_edge_cases(self):
+    def test_is_allowed_edge_cases(self) -> None:
         """Test is_allowed with edge cases."""
         registry = TrustRegistry()
 
@@ -106,7 +106,7 @@ class TestTrustRegistry:
         assert registry.is_allowed("  trusted_bank_001  ") is True
         assert registry.is_allowed("   ") is False
 
-    def test_list_providers(self):
+    def test_list_providers(self) -> None:
         """Test list_providers returns sorted list."""
         registry = TrustRegistry()
 
@@ -122,7 +122,7 @@ class TestTrustRegistry:
         assert "trusted_bank_001" in providers
         assert "verified_credit_union_002" in providers
 
-    def test_add_provider(self):
+    def test_add_provider(self) -> None:
         """Test adding a provider to the allowlist."""
         registry = TrustRegistry()
 
@@ -139,7 +139,7 @@ class TestTrustRegistry:
         assert result is False
         assert len(registry.list_providers()) == initial_count + 1
 
-    def test_add_provider_invalid(self):
+    def test_add_provider_invalid(self) -> None:
         """Test adding invalid providers."""
         registry = TrustRegistry()
 
@@ -160,7 +160,7 @@ class TestTrustRegistry:
         assert result is False
         assert len(registry.list_providers()) == initial_count
 
-    def test_remove_provider(self):
+    def test_remove_provider(self) -> None:
         """Test removing a provider from the allowlist."""
         registry = TrustRegistry()
 
@@ -177,7 +177,7 @@ class TestTrustRegistry:
         result = registry.remove_provider("nonexistent_provider")
         assert result is False
 
-    def test_remove_provider_invalid(self):
+    def test_remove_provider_invalid(self) -> None:
         """Test removing invalid providers."""
         registry = TrustRegistry()
 
@@ -188,7 +188,7 @@ class TestTrustRegistry:
         assert result is False
         assert len(registry.list_providers()) == initial_count
 
-    def test_reload(self):
+    def test_reload(self) -> None:
         """Test reloading the allowlist."""
         registry = TrustRegistry()
 
@@ -201,7 +201,7 @@ class TestTrustRegistry:
         assert "temp_provider_789" not in registry.list_providers()
         assert "trusted_bank_001" in registry.list_providers()
 
-    def test_get_stats(self):
+    def test_get_stats(self) -> None:
         """Test getting registry statistics."""
         registry = TrustRegistry()
 
@@ -217,20 +217,20 @@ class TestTrustRegistry:
 class TestConvenienceFunctions:
     """Test cases for convenience functions."""
 
-    def test_is_provider_allowed(self):
+    def test_is_provider_allowed(self) -> None:
         """Test is_provider_allowed convenience function."""
         # Should work with built-in providers
         assert is_provider_allowed("trusted_bank_001") is True
         assert is_provider_allowed("unknown_provider") is False
 
-    def test_list_allowed_providers(self):
+    def test_list_allowed_providers(self) -> None:
         """Test list_allowed_providers convenience function."""
         providers = list_allowed_providers()
 
         assert isinstance(providers, list)
         assert "trusted_bank_001" in providers
 
-    def test_get_trust_registry(self):
+    def test_get_trust_registry(self) -> None:
         """Test get_trust_registry function."""
         registry = get_trust_registry()
 

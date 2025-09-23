@@ -81,7 +81,7 @@ class TrustRegistry:
             "licensed_lender_005",
         }
 
-    def is_allowed(self, provider_id: str) -> bool:
+    def is_allowed(self, provider_id: str | None) -> bool:
         """
         Check if a provider is in the allowlist.
 
@@ -105,7 +105,7 @@ class TrustRegistry:
         """
         return sorted(self._providers)
 
-    def add_provider(self, provider_id: str) -> bool:
+    def add_provider(self, provider_id: str | None) -> bool:
         """
         Add a provider to the allowlist.
 
@@ -125,7 +125,7 @@ class TrustRegistry:
         self._providers.add(provider_id)
         return True
 
-    def remove_provider(self, provider_id: str) -> bool:
+    def remove_provider(self, provider_id: str | None) -> bool:
         """
         Remove a provider from the allowlist.
 
@@ -135,7 +135,7 @@ class TrustRegistry:
         Returns:
             bool: True if removed, False if not found
         """
-        if not isinstance(provider_id, str):
+        if provider_id is None:
             return False
 
         provider_id = provider_id.strip()

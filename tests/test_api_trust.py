@@ -9,7 +9,7 @@ from onyx.api import app
 client = TestClient(app)
 
 
-def test_list_trusted_providers():
+def test_list_trusted_providers() -> None:
     """Test GET /trust/providers endpoint returns 200 with provider list."""
     response = client.get("/trust/providers")
 
@@ -35,7 +35,7 @@ def test_list_trusted_providers():
     assert "allowlist_size" in data["stats"]
 
 
-def test_check_provider_allowed_true():
+def test_check_provider_allowed_true() -> None:
     """Test GET /trust/allowed/{provider_id} returns 200 for allowed provider."""
     response = client.get("/trust/allowed/trusted_bank_001")
 
@@ -51,7 +51,7 @@ def test_check_provider_allowed_true():
     assert "trust registry" in data["reason"]
 
 
-def test_check_provider_allowed_false():
+def test_check_provider_allowed_false() -> None:
     """Test GET /trust/allowed/{provider_id} returns 200 for non-allowed provider."""
     response = client.get("/trust/allowed/unknown_provider")
 
@@ -67,7 +67,7 @@ def test_check_provider_allowed_false():
     assert "not found" in data["reason"]
 
 
-def test_check_provider_allowed_multiple_providers():
+def test_check_provider_allowed_multiple_providers() -> None:
     """Test GET /trust/allowed/{provider_id} with multiple built-in providers."""
     builtin_providers = [
         "trusted_bank_001",
@@ -88,7 +88,7 @@ def test_check_provider_allowed_multiple_providers():
         assert "trust registry" in data["reason"]
 
 
-def test_check_provider_allowed_edge_cases():
+def test_check_provider_allowed_edge_cases() -> None:
     """Test GET /trust/allowed/{provider_id} with edge cases."""
     # Test valid provider IDs that should work
     valid_cases = [
@@ -120,7 +120,7 @@ def test_check_provider_allowed_edge_cases():
     assert data["allowed"] is False
 
 
-def test_check_provider_allowed_special_characters():
+def test_check_provider_allowed_special_characters() -> None:
     """Test GET /trust/allowed/{provider_id} with special characters."""
     # Test provider IDs with special characters that should work
     valid_special_cases = [
@@ -151,7 +151,7 @@ def test_check_provider_allowed_special_characters():
     assert data["allowed"] is False
 
 
-def test_api_response_schema_consistency():
+def test_api_response_schema_consistency() -> None:
     """Test that API responses have consistent schema."""
     # Test providers endpoint
     providers_response = client.get("/trust/providers")
@@ -172,7 +172,7 @@ def test_api_response_schema_consistency():
         assert key in allowed_data
 
 
-def test_api_deterministic_responses():
+def test_api_deterministic_responses() -> None:
     """Test that API responses are deterministic."""
     # Make multiple requests to same endpoints
     for _ in range(3):
@@ -187,7 +187,7 @@ def test_api_deterministic_responses():
         assert response3.json() == response4.json()
 
 
-def test_api_performance():
+def test_api_performance() -> None:
     """Test that API endpoints respond quickly."""
     import time
 
