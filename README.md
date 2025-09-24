@@ -102,8 +102,84 @@ uvicorn onyx.api:app --reload
 - `GET /trust/providers` - List all trusted credential providers
 - `GET /trust/allowed/{provider_id}` - Check if a provider is allowed
 
+### KYB (Know Your Business) Verification
+- `POST /kyb/verify` - Perform KYB verification with deterministic rule-based checks
+
+#### KYB Verification Request Example
+```bash
+curl -X POST http://localhost:8000/kyb/verify \
+  -H "Content-Type: application/json" \
+  -d '{
+    "entity_id": "business_001",
+    "business_name": "Acme Corporation Ltd",
+    "jurisdiction": "US",
+    "entity_age_days": 1000,
+    "registration_status": "active",
+    "sanctions_flags": [],
+    "business_type": "corporation",
+    "registration_number": "12345678"
+  }'
+```
+
+#### KYB Verification Response Example
+```json
+{
+  "status": "verified",
+  "checks": [
+    {
+      "check_name": "jurisdiction_verification",
+      "status": "verified",
+      "details": {
+        "jurisdiction": "US",
+        "whitelisted": true
+      },
+      "reason": "Jurisdiction US is whitelisted"
+    },
+    {
+      "check_name": "entity_age_verification",
+      "status": "verified",
+      "details": {
+        "entity_age_days": 1000,
+        "minimum_required_days": 365,
+        "meets_requirement": true
+      },
+      "reason": "Entity age 1000 days meets minimum requirement of 365 days"
+    }
+  ],
+  "reason": "All verification checks passed successfully",
+  "entity_id": "business_001",
+  "verified_at": "2024-01-15T10:30:00Z",
+  "metadata": {
+    "verification_version": "1.0.0",
+    "rules_applied": 5,
+    "jurisdiction": "US",
+    "entity_age_days": 1000
+  }
+}
+```
+
+#### CloudEvents Integration
+Enable CloudEvents emission with the `emit_ce=true` query parameter:
+
+```bash
+curl -X POST "http://localhost:8000/kyb/verify?emit_ce=true" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "entity_id": "business_001",
+    "business_name": "Acme Corporation Ltd",
+    "jurisdiction": "US",
+    "entity_age_days": 1000,
+    "registration_status": "active",
+    "sanctions_flags": [],
+    "business_type": "corporation"
+  }'
+```
+
 ### MCP (Model Context Protocol)
 - `POST /mcp/invoke` - MCP protocol endpoint for trust operations
+  - `getStatus` - Get the current status of the Onyx agent
+  - `isAllowedProvider` - Check if a provider is allowed in the trust registry
+  - `verifyKYB` - Perform KYB verification with deterministic rule-based checks
 
 ## Trust Registry Configuration
 
