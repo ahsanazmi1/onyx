@@ -43,8 +43,9 @@ def emit_kyb_verified_ce(trace_id: str, payload: dict[str, Any]) -> dict[str, An
         # Handle bytes return format
         structured_event_str = structured_event.decode("utf-8")
     result = json.loads(structured_event_str)
-    # Type assertion to ensure we return the expected type
-    assert isinstance(result, dict)
+    # Type check to ensure we return the expected type
+    if not isinstance(result, dict):
+        raise TypeError(f"Expected dict from JSON parsing, got {type(result)}")
     return result
 
 
