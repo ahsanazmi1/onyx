@@ -9,6 +9,8 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from onyx.kyb import validate_kyb_payload, verify_kyb
+
 # Create MCP router
 mcp_router = APIRouter(prefix="/mcp", tags=["mcp"])
 
@@ -67,6 +69,39 @@ async def invoke_mcp(request: MCPRequest) -> MCPResponse:
             return MCPResponse(
                 success=True,
                 data={"allowed": allowed, "provider_id": provider_id, "reason": reason},
+            )
+
+        elif request.verb == "verifyKYB":
+            # Extract KYB verification parameters from args
+            kyb_payload = {
+                "entity_id": request.args.get("entity_id", ""),
+                "business_name": request.args.get("business_name", ""),
+                "jurisdiction": request.args.get("jurisdiction", ""),
+                "entity_age_days": request.args.get("entity_age_days", 0),
+                "registration_status": request.args.get(
+                    "registration_status", "unknown"
+                ),
+                "sanctions_flags": request.args.get("sanctions_flags", []),
+                "business_type": request.args.get("business_type", "unknown"),
+                "registration_number": request.args.get("registration_number", ""),
+            }
+
+            # Validate and normalize inputs
+            validated_payload = validate_kyb_payload(kyb_payload)
+
+            # Perform KYB verification
+            verification_result = verify_kyb(validated_payload)
+
+            return MCPResponse(
+                success=True,
+                data={
+                    "verification_id": verification_result["entity_id"],
+                    "status": verification_result["status"],
+                    "checks": verification_result["checks"],
+                    "reason": verification_result["reason"],
+                    "verified_at": verification_result["verified_at"],
+                    "metadata": verification_result["metadata"],
+                },
             )
 
         else:
