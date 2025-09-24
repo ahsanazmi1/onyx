@@ -4,7 +4,18 @@
 [![Contracts](https://github.com/ahsanazmi1/onyx/workflows/Contracts/badge.svg)](https://github.com/ahsanazmi1/onyx/actions/workflows/contracts.yml)
 [![Security](https://github.com/ahsanazmi1/onyx/workflows/Security/badge.svg)](https://github.com/ahsanazmi1/onyx/actions/workflows/security.yml)
 
-Onyx is the Trust Registry and KYB (Know Your Business) service for the [Open Checkout Network (OCN)](https://github.com/ahsanazmi1/ocn-common). It provides centralized trust management, business verification, and compliance checking capabilities for the OCN ecosystem. Onyx maintains allowlists and denylists, performs business verification checks, and provides APIs for trust verification across all OCN services.
+**Onyx** is the **Trust Registry and KYB (Know Your Business) service** for the [Open Checkout Network (OCN)](https://github.com/ahsanazmi1/ocn-common).
+
+## Phase 2 — Explainability
+
+🚧 **Currently in development** - Phase 2 focuses on AI-powered explainability and human-readable trust decision reasoning.
+
+- **Status**: Active development on `phase-2-explainability` branch
+- **Features**: LLM integration, explainability API endpoints, decision audit trails
+- **Issue Tracker**: [Phase 2 Issues](https://github.com/ahsanazmi1/onyx/issues?q=is%3Aopen+is%3Aissue+label%3Aphase-2)
+- **Timeline**: Weeks 4-8 of OCN development roadmap
+
+Onyx provides centralized trust management, business verification, and compliance checking capabilities for the OCN ecosystem. Onyx maintains allowlists and denylists, performs business verification checks, and provides APIs for trust verification across all OCN services.
 
 ## OCN Ecosystem
 
