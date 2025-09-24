@@ -42,7 +42,10 @@ def emit_kyb_verified_ce(trace_id: str, payload: dict[str, Any]) -> dict[str, An
     else:
         # Handle bytes return format
         structured_event_str = structured_event.decode("utf-8")
-    return json.loads(structured_event_str)
+    result = json.loads(structured_event_str)
+    # Type assertion to ensure we return the expected type
+    assert isinstance(result, dict)
+    return result
 
 
 def validate_ce_schema(event: dict[str, Any]) -> bool:

@@ -312,7 +312,12 @@ def validate_kyb_payload(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
     # Ensure all sanctions_flags are strings
-    validated["sanctions_flags"] = [str(flag) for flag in validated["sanctions_flags"]]
+    if isinstance(validated["sanctions_flags"], list):
+        validated["sanctions_flags"] = [
+            str(flag) for flag in validated["sanctions_flags"]
+        ]
+    else:
+        validated["sanctions_flags"] = []
 
     return validated
 
@@ -343,7 +348,7 @@ def get_kyb_verification_summary(verification_result: dict[str, Any]) -> str:
 
     # Add metadata
     metadata = verification_result.get("metadata", {})
-    if metadata:
+    if isinstance(metadata, dict) and metadata:
         summary += "\nMetadata:\n"
         summary += f"• Jurisdiction: {metadata.get('jurisdiction', 'N/A')}\n"
         summary += f"• Entity Age: {metadata.get('entity_age_days', 0)} days\n"

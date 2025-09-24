@@ -2,6 +2,8 @@
 Tests for KYB verification CloudEvents validation.
 """
 
+from typing import Any
+
 from onyx.ce import (
     create_kyb_verification_summary,
     create_kyb_verified_payload,
@@ -150,7 +152,7 @@ def test_validate_ce_schema_valid() -> None:
 
 def test_validate_ce_schema_missing_fields() -> None:
     """Test CloudEvent schema validation with missing required fields."""
-    invalid_events = [
+    invalid_events: list[dict[str, Any]] = [
         # Missing specversion
         {
             "type": "ocn.onyx.kyb_verified.v1",
@@ -347,7 +349,7 @@ def test_validate_kyb_verification_payload() -> None:
     assert validate_kyb_verification_payload(valid_payload) is True
 
     # Test invalid payloads
-    invalid_payloads = [
+    invalid_payloads: list[dict[str, Any]] = [
         # Missing verification_result
         {"entity_info": {}, "timestamp": "2024-01-15T10:30:00Z", "metadata": {}},
         # Missing entity_info
