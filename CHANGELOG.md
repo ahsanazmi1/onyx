@@ -8,12 +8,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Initial project structure
-- FastAPI application with health check endpoint
-- Basic test suite with pytest
-- CI/CD pipeline with GitHub Actions
-- Code quality tools: ruff, black, mypy
-- Documentation: README, LICENSE, CONTRIBUTING
+- Phase 2 — Explainability scaffolding
+- PR template for Phase 2 development
+
+## [Unreleased] — Phase 2
+
+### Added
+- AI-powered trust decision explanations
+- LLM integration for human-readable trust reasoning
+- Explainability API endpoints for trust validation
+- Decision audit trail with explanations
+- Integration with Azure OpenAI for explanations
+- Enhanced MCP verbs for explainability features
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
 
 ## [0.1.0] - 2024-09-22
 
