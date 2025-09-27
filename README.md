@@ -207,6 +207,15 @@ This project uses:
 - **ruff** and **black** for code formatting
 - **mypy** for type checking
 
+## Phase 3 — Negotiation & Live Fee Bidding
+
+Trust signals shape rail preferences.
+
+### Phase 3 — Negotiation & Live Fee Bidding
+- [ ] Feeds trust signals into negotiation (e.g., high-risk → disfavor ACH)
+- [ ] Emits trust signal CE (ocn.onyx.trust_signal.v1)
+- [ ] Tests validating trust-influenced outcomes
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
