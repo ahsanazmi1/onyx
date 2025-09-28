@@ -209,12 +209,81 @@ This project uses:
 
 ## Phase 3 — Negotiation & Live Fee Bidding
 
-Trust signals shape rail preferences.
+Trust signals shape rail preferences through ML-powered risk assessment and rail weight adjustments.
 
 ### Phase 3 — Negotiation & Live Fee Bidding
-- [ ] Feeds trust signals into negotiation (e.g., high-risk → disfavor ACH)
-- [ ] Emits trust signal CE (ocn.onyx.trust_signal.v1)
-- [ ] Tests validating trust-influenced outcomes
+- [x] **Feeds trust signals into negotiation** (e.g., high-risk → disfavor ACH)
+- [x] **Emits trust signal CE** (`ocn.onyx.trust_signal.v1`)
+- [x] **Tests validating trust-influenced outcomes**
+
+### Trust Signal Features
+- **ML-Powered Scoring**: Trust score (0-1) based on device reputation, velocity, IP risk, and history length
+- **Rail Weight Adjustments**: Automatic adjustment of payment rail preferences based on risk level
+- **CloudEvent Emission**: Emits `ocn.onyx.trust_signal.v1` events for audit and integration
+- **LLM Explanations**: Optional LLM-powered explanations for trust decisions
+- **Deterministic Results**: Consistent scoring with configurable seeds for testing
+
+### Trust Signal API Endpoints
+- `POST /trust/signal` - Generate trust signal with ML scoring and rail adjustments
+- `GET /trust/signal/status` - Get trust signal service status and capabilities
+- `GET /trust/signal/sample-context` - Get sample trust context for testing
+
+### MCP Trust Signal Verb
+- `getTrustSignal` - Generate trust signal via Model Context Protocol
+
+#### Trust Signal Request Example
+```bash
+curl -X POST http://localhost:8000/trust/signal \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trace_id": "trust-trace-001",
+    "context": {
+      "device_reputation": 0.8,
+      "velocity": 2.0,
+      "ip_risk": 0.3,
+      "history_len": 50,
+      "user_id": "user_001",
+      "merchant_id": "merchant_001",
+      "channel": "online",
+      "amount": 100.0
+    },
+    "original_weights": {
+      "ACH": 0.4,
+      "debit": 0.3,
+      "credit": 0.3
+    }
+  }'
+```
+
+#### Trust Signal Response Example
+```json
+{
+  "trace_id": "trust-trace-001",
+  "trust_score": 0.75,
+  "risk_level": "low",
+  "confidence": 0.85,
+  "model_type": "trust_signal_ml_stub_v1",
+  "feature_contributions": {
+    "device_reputation": 0.28,
+    "velocity": 0.20,
+    "ip_risk": 0.18,
+    "history_len": 0.08
+  },
+  "rail_adjustments": [
+    {
+      "rail_type": "ACH",
+      "original_weight": 0.4,
+      "adjusted_weight": 0.4,
+      "adjustment_factor": 1.0,
+      "reason": "Trust score 0.75 (low risk) affects ACH preference"
+    }
+  ],
+  "explanation": "Low risk detected (score: 0.75) with strong transaction history. No significant rail adjustments needed",
+  "event_emitted": true,
+  "event_id": "trust-signal-trust-trace-001-1234567890",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
 
 ## License
 

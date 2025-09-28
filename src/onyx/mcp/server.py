@@ -10,6 +10,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from onyx.kyb import validate_kyb_payload, verify_kyb
+from onyx.trust_signals import get_trust_signal, TrustContext
+from onyx.trust_events import emit_trust_signal_event
 
 # Create MCP router
 mcp_router = APIRouter(prefix="/mcp", tags=["mcp"])
@@ -104,8 +106,94 @@ async def invoke_mcp(request: MCPRequest) -> MCPResponse:
                 },
             )
 
+        elif request.verb == "getTrustSignal":
+            # Extract trust signal parameters from args
+            trace_id = request.args.get("trace_id")
+            if not trace_id:
+                raise HTTPException(
+                    status_code=400, detail="trace_id parameter is required"
+                )
+
+            # Extract trust context
+            context_data = request.args.get("context", {})
+            if not context_data:
+                raise HTTPException(
+                    status_code=400, detail="context parameter is required"
+                )
+
+            # Create trust context
+            trust_context = TrustContext(
+                device_reputation=context_data.get("device_reputation", 0.5),
+                velocity=context_data.get("velocity", 1.0),
+                ip_risk=context_data.get("ip_risk", 0.3),
+                history_len=context_data.get("history_len", 10),
+                user_id=context_data.get("user_id"),
+                session_id=context_data.get("session_id"),
+                merchant_id=context_data.get("merchant_id"),
+                channel=context_data.get("channel", "online"),
+                amount=context_data.get("amount"),
+            )
+
+            # Get original rail weights if provided
+            original_weights = request.args.get("original_weights")
+            deterministic_seed = request.args.get("deterministic_seed", 42)
+
+            # Generate trust signal
+            trust_response = get_trust_signal(
+                trace_id=trace_id,
+                context=trust_context,
+                original_weights=original_weights,
+                deterministic_seed=deterministic_seed
+            )
+
+            # Emit CloudEvent
+            try:
+                event = emit_trust_signal_event(
+                    trust_response=trust_response,
+                    context=trust_context,
+                    merchant_context=request.args.get("merchant_context"),
+                    cart_summary=request.args.get("cart_summary"),
+                    rail_candidates=request.args.get("rail_candidates")
+                )
+                event_emitted = True
+                event_id = event.id
+            except Exception as e:
+                # Log error but don't fail the request
+                event_emitted = False
+                event_id = None
+
+            return MCPResponse(
+                success=True,
+                data={
+                    "trace_id": trust_response.trace_id,
+                    "trust_score": trust_response.trust_score_result.trust_score,
+                    "risk_level": trust_response.trust_score_result.risk_level,
+                    "confidence": trust_response.trust_score_result.confidence,
+                    "model_type": trust_response.trust_score_result.model_type,
+                    "feature_contributions": trust_response.trust_score_result.feature_contributions,
+                    "rail_adjustments": [
+                        {
+                            "rail_type": adj.rail_type,
+                            "original_weight": adj.original_weight,
+                            "adjusted_weight": adj.adjusted_weight,
+                            "adjustment_factor": adj.adjustment_factor,
+                            "reason": adj.reason,
+                        }
+                        for adj in trust_response.rail_adjustments
+                    ],
+                    "explanation": trust_response.explanation,
+                    "event_emitted": event_emitted,
+                    "event_id": event_id,
+                    "timestamp": trust_response.timestamp.isoformat(),
+                    "metadata": trust_response.metadata,
+                },
+            )
+
         else:
-            raise HTTPException(status_code=400, detail=f"Unknown verb: {request.verb}")
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Unknown verb: {request.verb}. Supported verbs: getStatus, isAllowedProvider, verifyKYB, getTrustSignal"
+            )
 
     except HTTPException:
         raise

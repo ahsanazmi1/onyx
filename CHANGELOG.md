@@ -3,9 +3,26 @@
 All notable changes to this project will be documented in this file.
 
 ## v0.3.0 — Phase 3: Negotiation & Live Fee Bidding
-- New branch: phase-3-bidding
-- Prep for negotiation, bidding, policy DSL, and processor connectors
-- README updated with Phase 3 checklist
+
+### Added
+- **Trust Signal Generation**: ML-powered trust scoring based on device reputation, velocity, IP risk, and history length
+- **Rail Weight Adjustments**: Automatic adjustment of payment rail preferences based on risk level (high-risk → disfavor ACH)
+- **CloudEvent Emission**: Emits `ocn.onyx.trust_signal.v1` events for audit and integration
+- **LLM Explanations**: Optional LLM-powered explanations for trust decisions
+- **MCP Integration**: `getTrustSignal` verb for Model Context Protocol
+- **API Endpoints**: 
+  - `POST /trust/signal` - Generate trust signal with ML scoring
+  - `GET /trust/signal/status` - Service status and capabilities
+  - `GET /trust/signal/sample-context` - Sample trust context for testing
+- **Deterministic Scoring**: Consistent results with configurable seeds for testing
+- **Comprehensive Tests**: 20+ test cases covering trust-influenced outcomes, rail adjustments, and CloudEvent validation
+
+### Features
+- Trust score calculation (0-1) with risk level classification (low/medium/high)
+- Feature contribution analysis for explainability
+- Rail-specific weight adjustments with reasoning
+- CloudEvent validation and JSON schema
+- Integration with existing KYB and trust registry functionality
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
