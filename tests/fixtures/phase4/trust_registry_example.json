@@ -1,0 +1,121 @@
+{
+  "providers": [
+    {
+      "provider_id": "stripe",
+      "provider_name": "Stripe",
+      "provider_type": "payment_processor",
+      "status": "active",
+      "trust_level": "critical",
+      "organization": "Stripe, Inc.",
+      "jurisdiction": "US",
+      "website": "https://stripe.com",
+      "contact_email": "trust@stripe.com",
+      "capabilities": [
+        "payment_processing",
+        "fraud_detection",
+        "risk_scoring"
+      ],
+      "supported_rails": ["ACH", "debit", "credit"],
+      "trust_score": 0.95,
+      "verification_status": "verified",
+      "compliance_status": "compliant",
+      "metadata": {
+        "pci_compliant": true,
+        "soc2_certified": true,
+        "established_year": 2010
+      },
+      "added_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-15T10:00:00Z",
+      "verified_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "provider_id": "adyen",
+      "provider_name": "Adyen",
+      "provider_type": "payment_processor",
+      "status": "active",
+      "trust_level": "critical",
+      "organization": "Adyen N.V.",
+      "jurisdiction": "NL",
+      "website": "https://adyen.com",
+      "contact_email": "trust@adyen.com",
+      "capabilities": [
+        "payment_processing",
+        "fraud_detection",
+        "risk_scoring",
+        "aml_screening"
+      ],
+      "supported_rails": ["ACH", "debit", "credit"],
+      "trust_score": 0.93,
+      "verification_status": "verified",
+      "compliance_status": "compliant",
+      "metadata": {
+        "pci_compliant": true,
+        "iso27001_certified": true,
+        "established_year": 2006
+      },
+      "added_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-15T10:00:00Z",
+      "verified_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "provider_id": "carat",
+      "provider_name": "Carat",
+      "provider_type": "payment_processor",
+      "status": "active",
+      "trust_level": "high",
+      "organization": "Carat, LLC",
+      "jurisdiction": "US",
+      "website": "https://carat.com",
+      "contact_email": "trust@carat.com",
+      "capabilities": [
+        "payment_processing",
+        "risk_scoring"
+      ],
+      "supported_rails": ["ACH", "debit"],
+      "trust_score": 0.88,
+      "verification_status": "verified",
+      "compliance_status": "compliant",
+      "metadata": {
+        "pci_compliant": true,
+        "established_year": 2018
+      },
+      "added_at": "2024-01-01T00:00:00Z",
+      "last_updated": "2024-01-15T10:00:00Z",
+      "verified_at": "2024-01-01T00:00:00Z"
+    }
+  ],
+  "stats": {
+    "total_providers": 3,
+    "active_providers": 3,
+    "suspended_providers": 0,
+    "revoked_providers": 0,
+    "providers_by_type": {
+      "payment_processor": 3
+    },
+    "providers_by_trust_level": {
+      "critical": 2,
+      "high": 1
+    },
+    "providers_by_capability": {
+      "payment_processing": 3,
+      "fraud_detection": 2,
+      "risk_scoring": 3,
+      "aml_screening": 1
+    },
+    "providers_by_jurisdiction": {
+      "US": 2,
+      "NL": 1
+    },
+    "average_trust_score": 0.92,
+    "high_trust_providers": 3,
+    "low_trust_providers": 0
+  }
+}
+
+
+
+
+
+
+
+

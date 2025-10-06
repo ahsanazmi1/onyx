@@ -2,7 +2,7 @@
 FastAPI application for Onyx Trust Registry service.
 """
 
-from typing import Any
+from typing import Any, Optional, List
 
 from fastapi import FastAPI, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -14,6 +14,24 @@ from onyx.trust_registry import get_trust_registry
 from onyx.trust_signals import get_trust_signal, TrustContext
 from onyx.trust_events import emit_trust_signal_event
 from onyx.llm.explain import is_trust_llm_configured
+
+# Import ML-enhanced trust signals
+try:
+    from .ml_enhanced_trust_signals import ml_enhanced_trust_signals
+    ML_AVAILABLE = True
+except ImportError as e:
+    print(f"⚠️ ML models not available: {e}")
+    ML_AVAILABLE = False
+
+# Phase 4 imports
+from onyx.trust_registry_v1 import get_trust_registry_v1
+from onyx.trust_signals_v1 import get_trust_signal_generator
+from onyx.models import (
+    AddProviderRequest, RevokeProviderRequest, ListProvidersRequest,
+    TrustSignalRequest, ProviderVerificationRequest, TrustRegistryStats,
+    TrustRegistryProvider, ListProvidersResponse, ProviderVerificationResponse,
+    TrustSignalResponse
+)
 
 # Create FastAPI application
 app = FastAPI(
@@ -230,13 +248,24 @@ async def generate_trust_signal(
         Trust signal response with scoring and adjustments
     """
     try:
-        # Generate trust signal
-        trust_response = get_trust_signal(
-            trace_id=request.trace_id,
-            context=request.context,
-            original_weights=request.original_weights,
-            deterministic_seed=request.deterministic_seed
-        )
+        # Generate trust signal (ML-enhanced if available)
+        if ML_AVAILABLE:
+            trust_response = ml_enhanced_trust_signals.generate_enhanced_trust_signal(
+                trace_id=request.trace_id,
+                context=request.context,
+                original_weights=request.original_weights,
+                deterministic_seed=request.deterministic_seed,
+                transaction_amount=getattr(request, 'transaction_amount', None),
+                merchant_id=getattr(request, 'merchant_id', None),
+                user_id=getattr(request, 'user_id', None)
+            )
+        else:
+            trust_response = get_trust_signal(
+                trace_id=request.trace_id,
+                context=request.context,
+                original_weights=request.original_weights,
+                deterministic_seed=request.deterministic_seed
+            )
         
         # Emit CloudEvent if requested
         event_emitted = False
@@ -321,6 +350,49 @@ async def get_trust_signal_status() -> dict[str, Any]:
     }
 
 
+@app.get("/ml/status", response_model=dict[str, Any])
+async def get_ml_status():
+    """Get ML model status and configuration."""
+    if not ML_AVAILABLE:
+        return {
+            "ml_enabled": False,
+            "error": "ML models not available"
+        }
+    
+    try:
+        from .ml.trust_scoring import get_trust_scorer
+        from .ml.risk_assessment import get_risk_assessor
+        
+        trust_scorer = get_trust_scorer()
+        risk_assessor = get_risk_assessor()
+        
+        return {
+            "ml_enabled": ml_enhanced_trust_signals.use_ml,
+            "ml_weight": ml_enhanced_trust_signals.ml_weight,
+            "models": {
+                "trust_scoring": {
+                    "loaded": trust_scorer.is_loaded,
+                    "model_type": trust_scorer.metadata.get("model_type", "unknown"),
+                    "version": trust_scorer.metadata.get("version", "unknown"),
+                    "training_date": trust_scorer.metadata.get("trained_on", "unknown"),
+                    "features": len(trust_scorer.feature_names) if trust_scorer.feature_names else 0
+                },
+                "risk_assessment": {
+                    "loaded": risk_assessor.is_loaded,
+                    "model_type": risk_assessor.metadata.get("model_type", "unknown"),
+                    "version": risk_assessor.metadata.get("version", "unknown"),
+                    "training_date": risk_assessor.metadata.get("trained_on", "unknown"),
+                    "features": len(risk_assessor.feature_names) if risk_assessor.feature_names else 0
+                }
+            }
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get ML status: {str(e)}",
+        )
+
+
 @app.get("/trust/signal/sample-context")
 async def get_sample_trust_context() -> dict[str, Any]:
     """
@@ -364,6 +436,189 @@ async def get_sample_trust_context() -> dict[str, Any]:
             "amount": 500.0,
         },
     }
+
+
+# Phase 4 - Trust Registry v1 API Endpoints
+
+@app.post("/v1/trust-registry/providers", response_model=TrustRegistryProvider, status_code=status.HTTP_201_CREATED)
+async def add_provider(request: AddProviderRequest) -> TrustRegistryProvider:
+    """
+    Add a new provider to the trust registry.
+    
+    - **provider_id**: Unique identifier for the provider
+    - **provider_name**: Human-readable name for the provider
+    - **provider_type**: Type of provider (payment_processor, credential_provider, etc.)
+    - **organization**: Organization name
+    - **jurisdiction**: Legal jurisdiction
+    - **capabilities**: List of provider capabilities
+    - **supported_rails**: List of supported payment rails
+    """
+    try:
+        registry = get_trust_registry_v1()
+        provider = registry.add_provider(request)
+        return provider
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.post("/v1/trust-registry/providers/{provider_id}/revoke", response_model=TrustRegistryProvider)
+async def revoke_provider(provider_id: str, request: RevokeProviderRequest) -> TrustRegistryProvider:
+    """
+    Revoke a provider from the trust registry.
+    
+    - **provider_id**: Provider identifier to revoke
+    - **reason**: Reason for revocation
+    - **effective_date**: When revocation takes effect (optional)
+    """
+    try:
+        registry = get_trust_registry_v1()
+        if request.provider_id != provider_id:
+            request.provider_id = provider_id  # Ensure consistency
+        provider = registry.revoke_provider(request)
+        return provider
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/trust-registry/providers", response_model=ListProvidersResponse)
+async def list_providers(
+    status: Optional[str] = Query(None, description="Filter by provider status"),
+    provider_type: Optional[str] = Query(None, description="Filter by provider type"),
+    trust_level: Optional[str] = Query(None, description="Filter by trust level"),
+    capability: Optional[str] = Query(None, description="Filter by capability"),
+    jurisdiction: Optional[str] = Query(None, description="Filter by jurisdiction"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of providers to return"),
+    offset: int = Query(0, ge=0, description="Number of providers to skip")
+) -> ListProvidersResponse:
+    """
+    List providers from the trust registry with optional filtering.
+    
+    - **status**: Filter by provider status (active, suspended, revoked, pending, under_review)
+    - **provider_type**: Filter by provider type (payment_processor, credential_provider, etc.)
+    - **trust_level**: Filter by trust level (critical, high, medium, low, untrusted)
+    - **capability**: Filter by specific capability
+    - **jurisdiction**: Filter by legal jurisdiction
+    - **limit**: Maximum number of providers to return (1-1000)
+    - **offset**: Number of providers to skip for pagination
+    """
+    try:
+        registry = get_trust_registry_v1()
+        
+        # Create request object
+        request = ListProvidersRequest(
+            status=status,
+            provider_type=provider_type,
+            trust_level=trust_level,
+            capability=capability,
+            jurisdiction=jurisdiction,
+            limit=limit,
+            offset=offset
+        )
+        
+        response = registry.list_providers(request)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/trust-registry/providers/{provider_id}", response_model=TrustRegistryProvider)
+async def get_provider(provider_id: str) -> TrustRegistryProvider:
+    """
+    Get a specific provider by ID.
+    
+    - **provider_id**: Provider identifier
+    """
+    try:
+        registry = get_trust_registry_v1()
+        provider = registry.get_provider(provider_id)
+        if not provider:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Provider {provider_id} not found")
+        return provider
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.post("/v1/trust-registry/providers/{provider_id}/verify", response_model=ProviderVerificationResponse)
+async def verify_provider(provider_id: str, request: ProviderVerificationRequest) -> ProviderVerificationResponse:
+    """
+    Verify a provider's credentials and capabilities.
+    
+    - **provider_id**: Provider identifier to verify
+    - **verification_type**: Type of verification to perform
+    - **verification_data**: Data required for verification
+    - **requested_capabilities**: Capabilities to verify
+    """
+    try:
+        registry = get_trust_registry_v1()
+        if request.provider_id != provider_id:
+            request.provider_id = provider_id  # Ensure consistency
+        verification = registry.verify_provider(request)
+        return verification
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.get("/v1/trust-registry/stats", response_model=TrustRegistryStats)
+async def get_trust_registry_stats() -> TrustRegistryStats:
+    """
+    Get comprehensive statistics about the trust registry.
+    
+    Returns statistics including provider counts by status, type, trust level,
+    capabilities, and jurisdiction, along with trust metrics.
+    """
+    try:
+        registry = get_trust_registry_v1()
+        stats = registry.get_stats()
+        return stats
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.post("/v1/trust-signals", response_model=TrustSignalResponse)
+async def generate_trust_signal(request: TrustSignalRequest) -> TrustSignalResponse:
+    """
+    Generate trust signal for negotiation.
+    
+    - **trace_id**: Transaction trace ID
+    - **provider_id**: Provider identifier to evaluate
+    - **rail_type**: Payment rail type
+    - **transaction_context**: Transaction context data
+    - **user_context**: User context data
+    - **merchant_context**: Merchant context data
+    - **amount**: Transaction amount
+    - **currency**: Currency code
+    """
+    try:
+        generator = get_trust_signal_generator()
+        signal = generator.generate_trust_signal(request)
+        return signal
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@app.post("/v1/trust-signals/batch", response_model=List[TrustSignalResponse])
+async def batch_generate_trust_signals(requests: List[TrustSignalRequest]) -> List[TrustSignalResponse]:
+    """
+    Generate trust signals for multiple providers in batch.
+    
+    - **requests**: List of trust signal requests
+    
+    Returns list of trust signal responses for all requested providers.
+    """
+    try:
+        generator = get_trust_signal_generator()
+        signals = generator.batch_generate_signals(requests)
+        return signals
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 def main() -> None:

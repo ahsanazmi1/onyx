@@ -1,0 +1,35 @@
+{
+  "provider_id": "new_processor_001",
+  "provider_name": "New Payment Processor",
+  "provider_type": "payment_processor",
+  "organization": "New Payment Solutions Inc.",
+  "jurisdiction": "US",
+  "website": "https://newprocessor.com",
+  "contact_email": "trust@newprocessor.com",
+  "capabilities": [
+    "payment_processing",
+    "fraud_detection",
+    "risk_scoring"
+  ],
+  "supported_rails": [
+    "ACH",
+    "debit",
+    "credit"
+  ],
+  "initial_trust_level": "medium",
+  "metadata": {
+    "pci_compliant": true,
+    "established_year": 2020,
+    "employee_count": 50,
+    "annual_volume": 1000000000
+  },
+  "notes": "New processor seeking trust registry approval for OCN participation"
+}
+
+
+
+
+
+
+
+

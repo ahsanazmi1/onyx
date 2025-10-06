@@ -1,0 +1,55 @@
+{
+  "signal_id": "signal-abc123",
+  "trace_id": "trace-negotiation-456",
+  "provider_id": "stripe",
+  "rail_type": "ACH",
+  "trust_score": 0.89,
+  "risk_level": "low",
+  "confidence": 0.92,
+  "original_rail_preference": 1.0,
+  "adjusted_rail_preference": 0.85,
+  "preference_adjustment": -0.15,
+  "trust_factors": {
+    "base_trust_score": 0.95,
+    "status_multiplier": 1.0,
+    "trust_level_multiplier": 1.0,
+    "rail_support": true
+  },
+  "risk_factors": {
+    "high_amount": 0.3,
+    "cross_border": 0.2
+  },
+  "explanation": "Provider Stripe (critical trust level). Trust score: 0.89. Risk assessment: low. Risk factors: high amount, cross border.",
+  "recommendation": "Allow transaction - acceptable risk level",
+  "generated_at": "2024-01-15T10:30:00Z",
+  "expires_at": "2024-01-15T11:30:00Z",
+  "metadata": {
+    "generation_method": "trust_registry_v1",
+    "provider_verified": true,
+    "rail_supported": true,
+    "transaction_context": {
+      "amount": 25000.0,
+      "merchant_risk_score": 0.4,
+      "cross_border": true
+    }
+  },
+  "provider_info": {
+    "provider_id": "stripe",
+    "provider_name": "Stripe",
+    "trust_level": "critical",
+    "status": "active",
+    "capabilities": [
+      "payment_processing",
+      "fraud_detection",
+      "risk_scoring"
+    ]
+  }
+}
+
+
+
+
+
+
+
+

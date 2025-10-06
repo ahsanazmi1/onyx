@@ -1,0 +1,14 @@
+{
+  "provider_id": "problematic_processor",
+  "reason": "Multiple security incidents and compliance violations detected",
+  "effective_date": "2024-01-20T00:00:00Z",
+  "notes": "Immediate revocation required due to: 1) Data breach incident on 2024-01-15, 2) PCI compliance violations, 3) Failure to respond to audit requests within required timeframe. Provider may reapply after remediation and full compliance verification."
+}
+
+
+
+
+
+
+
+

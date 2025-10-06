@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "trained_on": "2025-10-02T22:05:12.084089",
+  "model_type": "RandomForestRegressor",
+  "feature_names": [
+    "device_reputation",
+    "velocity",
+    "ip_risk",
+    "history_len",
+    "user_age_days",
+    "session_duration_min",
+    "device_consistency",
+    "location_consistency",
+    "payment_method_age_days",
+    "transaction_amount",
+    "merchant_trust_score",
+    "time_since_last_login_hours",
+    "failed_attempts_24h",
+    "account_verification_level",
+    "is_mobile_device",
+    "is_vpn_connection",
+    "transaction_hour",
+    "transaction_day_of_week"
+  ],
+  "performance_metrics": {
+    "r2_score": 0.85,
+    "mae": 0.08,
+    "rmse": 0.12
+  },
+  "training_samples": 5000,
+  "saved_at": "2025-10-02T22:05:12.095174"
+}
